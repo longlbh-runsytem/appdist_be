@@ -1,0 +1,51 @@
+# Chạy trên server, cùng thư mục với prod.env và db/migrations:
+#   TAG=1.0.0 docker compose up -d
+# Chạy thử trên máy dev với file env và cổng khác:
+#   ENV_FILE=local.env API_PORT=8081 docker compose -p appdist-local up -d
+# Mỗi lần up: postgres sẵn sàng → migrate chạy migration mới → api khởi động.
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    env_file: ${ENV_FILE:-prod.env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    # Không publish cổng: chỉ các service trong compose gọi được DB.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  migrate:
+    image: migrate/migrate:v4.18.3
+    env_file: ${ENV_FILE:-prod.env}
+    volumes:
+      - ./db/migrations:/migrations:ro
+    entrypoint: ["sh", "-c", "migrate -path /migrations -database \"$$DB_SOURCE\" up"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  api:
+    image: appdist-be:${TAG:-latest}
+    restart: unless-stopped
+    env_file: ${ENV_FILE:-prod.env}
+    ports:
+      # Chỉ Nginx trên cùng máy gọi vào; ra internet qua HTTPS của Nginx.
+      - "127.0.0.1:${API_PORT:-8080}:8080"
+    # Server chờ request đang chạy (upload lớn) tối đa 30 giây khi tắt.
+    stop_grace_period: 40s
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "5"
+
+volumes:
+  pgdata:

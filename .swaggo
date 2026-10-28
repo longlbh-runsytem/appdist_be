@@ -1,0 +1,2 @@
+// Kiểu không tự suy ra được schema — ép về kiểu JSON thật khi marshal.
+replace github.com/google/uuid.UUID string

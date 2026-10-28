@@ -1,0 +1,4072 @@
+basePath: /
+definitions:
+  common.AppError:
+    properties:
+      errorKey:
+        type: string
+      log:
+        type: string
+      message:
+        type: string
+      messageTrans:
+        type: string
+      statusCode:
+        type: integer
+    type: object
+  common.RefDTO:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  common.SuccessRes:
+    properties:
+      code:
+        example: 200
+        type: integer
+      data: {}
+      filter: {}
+      message:
+        example: success
+        type: string
+      paging: {}
+    type: object
+  dto.APIKeyDTO:
+    properties:
+      appId:
+        type: string
+      createdAt:
+        type: string
+      createdBy:
+        type: string
+      id:
+        type: string
+      label:
+        type: string
+      lastUsedAt:
+        type: string
+      token:
+        type: string
+      tokenPreview:
+        type: string
+    type: object
+  dto.AcceptInvitePayload:
+    properties:
+      name:
+        maxLength: 100
+        type: string
+      password:
+        maxLength: 72
+        minLength: 8
+        type: string
+      token:
+        maxLength: 128
+        type: string
+    required:
+    - password
+    - token
+    type: object
+  dto.AddTestersPayload:
+    properties:
+      emails:
+        example:
+        - qa1@company.com
+        items:
+          type: string
+        maxItems: 100
+        minItems: 1
+        type: array
+    required:
+    - emails
+    type: object
+  dto.AppBuildDTO:
+    properties:
+      appId:
+        type: string
+      buildNumber:
+        type: string
+      changelog:
+        type: string
+      iconUrl:
+        type: string
+      id:
+        example: "9"
+        type: string
+      platform:
+        allOf:
+        - $ref: '#/definitions/sqlc.Platform'
+        enum:
+        - ios
+        - android
+      shareToken:
+        type: string
+      sizeBytes:
+        type: integer
+      status:
+        example: ready
+        type: string
+      uploadedAt:
+        type: string
+      version:
+        type: string
+    type: object
+  dto.AppBuildPage:
+    properties:
+      counts:
+        $ref: '#/definitions/dto.PlatformCountsDTO'
+      hasMore:
+        type: boolean
+      items:
+        items:
+          $ref: '#/definitions/dto.AppBuildDTO'
+        type: array
+      page:
+        type: integer
+      pageSize:
+        type: integer
+      total:
+        type: integer
+      totalPages:
+        type: integer
+    type: object
+  dto.AppDTO:
+    properties:
+      autoAssignTesterGroups:
+        type: boolean
+      createdAt:
+        type: string
+      defaultTesterGroups:
+        items:
+          $ref: '#/definitions/common.RefDTO'
+        type: array
+      downloadLimit:
+        type: integer
+      expiresAt:
+        type: string
+      iconUrl:
+        type: string
+      id:
+        type: string
+      isPublic:
+        type: boolean
+      managingGroups:
+        items:
+          $ref: '#/definitions/common.RefDTO'
+        type: array
+      name:
+        type: string
+      platforms:
+        $ref: '#/definitions/dto.PlatformsDTO'
+      requiresApproval:
+        type: boolean
+    type: object
+  dto.AppSummaryDTO:
+    properties:
+      iconUrl:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      platforms:
+        $ref: '#/definitions/dto.PlatformsDTO'
+    type: object
+  dto.ApprovalDTO:
+    properties:
+      appName:
+        type: string
+      buildId:
+        example: ""
+        type: string
+      buildNumber:
+        type: string
+      id:
+        type: string
+      requestedAt:
+        type: string
+      requestedBy:
+        type: string
+      version:
+        type: string
+    type: object
+  dto.ApprovalPayload:
+    properties:
+      requiresApproval:
+        type: boolean
+    required:
+    - requiresApproval
+    type: object
+  dto.AutoAssignPayload:
+    properties:
+      autoAssignTesterGroups:
+        type: boolean
+    required:
+    - autoAssignTesterGroups
+    type: object
+  dto.BuildDTO:
+    properties:
+      appId:
+        type: string
+      appName:
+        description: Thông tin đọc từ file, ngoài tài liệu FE.
+        type: string
+      buildNumber:
+        type: string
+      bundleId:
+        type: string
+      changelog:
+        type: string
+      downloadCount:
+        type: integer
+      downloadUrl:
+        type: string
+      expiresAt:
+        type: string
+      iconUrl:
+        type: string
+      id:
+        example: "42"
+        type: string
+      metadata:
+        additionalProperties: {}
+        type: object
+      minOsVersion:
+        type: string
+      platform:
+        allOf:
+        - $ref: '#/definitions/sqlc.Platform'
+        enum:
+        - ios
+        - android
+      shareToken:
+        type: string
+      sizeBytes:
+        type: integer
+      status:
+        allOf:
+        - $ref: '#/definitions/sqlc.BuildStatus'
+        enum:
+        - processing
+        - ready
+        - pending_approval
+        - rejected
+        - archived
+      testerGroups:
+        items:
+          $ref: '#/definitions/common.RefDTO'
+        type: array
+      uploadedAt:
+        type: string
+      uploadedBy:
+        type: string
+      version:
+        type: string
+      warnings:
+        items:
+          type: string
+        type: array
+    type: object
+  dto.ChangePasswordPayload:
+    properties:
+      currentPassword:
+        maxLength: 72
+        type: string
+      newPassword:
+        maxLength: 72
+        minLength: 8
+        type: string
+    required:
+    - currentPassword
+    - newPassword
+    type: object
+  dto.CreateAPIKeyPayload:
+    properties:
+      label:
+        example: GitHub Actions
+        maxLength: 100
+        type: string
+    required:
+    - label
+    type: object
+  dto.CreateAppPayload:
+    properties:
+      managingGroupIds:
+        items:
+          type: string
+        maxItems: 20
+        minItems: 1
+        type: array
+      name:
+        example: GMO Delivery
+        maxLength: 100
+        type: string
+      platforms:
+        $ref: '#/definitions/dto.PlatformsDTO'
+    required:
+    - managingGroupIds
+    - name
+    type: object
+  dto.CreateBuildPayload:
+    properties:
+      appId:
+        type: string
+      changelog:
+        example: Sửa lỗi đăng nhập
+        maxLength: 2000
+        type: string
+      uploadKey:
+        maxLength: 512
+        type: string
+    required:
+    - appId
+    - uploadKey
+    type: object
+  dto.CreateGroupPayload:
+    properties:
+      name:
+        example: Mobile Team
+        maxLength: 100
+        type: string
+      parentId:
+        type: string
+    required:
+    - name
+    type: object
+  dto.CreateTesterGroupPayload:
+    properties:
+      name:
+        example: Nhóm QA nội bộ
+        maxLength: 100
+        type: string
+    required:
+    - name
+    type: object
+  dto.CreateUserPayload:
+    properties:
+      email:
+        example: dev1@company.com
+        maxLength: 255
+        type: string
+      name:
+        example: Dev One
+        maxLength: 100
+        type: string
+      password:
+        example: Dev@123456
+        maxLength: 72
+        minLength: 8
+        type: string
+      role:
+        allOf:
+        - $ref: '#/definitions/sqlc.UserRole'
+        enum:
+        - owner
+        - admin
+        - member
+        - tester
+    required:
+    - email
+    - name
+    - password
+    - role
+    type: object
+  dto.DailyDownloadsDTO:
+    properties:
+      count:
+        example: 120
+        type: integer
+      date:
+        example: "2026-09-25"
+        type: string
+    type: object
+  dto.GroupDTO:
+    properties:
+      id:
+        type: string
+      members:
+        items:
+          $ref: '#/definitions/dto.MemberRefDTO'
+        type: array
+      name:
+        type: string
+      parentId:
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/sqlc.EntityStatus'
+        enum:
+        - active
+        - disabled
+        - deleted
+    type: object
+  dto.InitUploadPayload:
+    properties:
+      fileName:
+        example: app-release.apk
+        maxLength: 255
+        type: string
+      fileSize:
+        example: 45000000
+        type: integer
+    required:
+    - fileName
+    - fileSize
+    type: object
+  dto.InitUploadResponse:
+    properties:
+      expiresAt:
+        type: string
+      method:
+        type: string
+      uploadKey:
+        type: string
+      uploadUrl:
+        type: string
+    type: object
+  dto.LoginPayload:
+    properties:
+      email:
+        example: tester@appdist.local
+        maxLength: 255
+        type: string
+      password:
+        example: Test@e41ca7
+        maxLength: 72
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  dto.LoginResponse:
+    properties:
+      accessToken:
+        type: string
+      accessTokenExpiresAt:
+        type: string
+      refreshToken:
+        type: string
+      refreshTokenExpiresAt:
+        type: string
+      sessionId:
+        type: string
+      user:
+        $ref: '#/definitions/dto.UserDTO'
+    type: object
+  dto.LogoutPayload:
+    properties:
+      refreshToken:
+        type: string
+    required:
+    - refreshToken
+    type: object
+  dto.MemberRefDTO:
+    properties:
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      role:
+        allOf:
+        - $ref: '#/definitions/sqlc.UserRole'
+        enum:
+        - owner
+        - admin
+        - member
+    type: object
+  dto.PlatformCountsDTO:
+    properties:
+      all:
+        type: integer
+      android:
+        type: integer
+      ios:
+        type: integer
+    type: object
+  dto.PlatformDTO:
+    properties:
+      bundleId:
+        example: com.gmo.delivery.ios
+        maxLength: 255
+        type: string
+    required:
+    - bundleId
+    type: object
+  dto.PlatformsDTO:
+    properties:
+      android:
+        $ref: '#/definitions/dto.PlatformDTO'
+      ios:
+        $ref: '#/definitions/dto.PlatformDTO'
+    type: object
+  dto.PublicAppDTO:
+    properties:
+      builds:
+        $ref: '#/definitions/dto.AppBuildPage'
+      iconUrl:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      platforms:
+        $ref: '#/definitions/dto.PlatformsDTO'
+    type: object
+  dto.ReleaseDTO:
+    properties:
+      appName:
+        type: string
+      buildNumber:
+        type: string
+      changelog:
+        type: string
+      expiresAt:
+        type: string
+      iconUrl:
+        type: string
+      installUrl:
+        type: string
+      pageUrl:
+        description: |-
+          Ngoài tài liệu FE: link trang tải bên FE (<FRONTEND_URL>/d/<token>) để
+          chia sẻ / hiện QR; kèm vé nếu App không public.
+        type: string
+      platform:
+        allOf:
+        - $ref: '#/definitions/sqlc.Platform'
+        enum:
+        - ios
+        - android
+      requiresPassword:
+        type: boolean
+      sizeBytes:
+        type: integer
+      token:
+        type: string
+      uploadedAt:
+        type: string
+      version:
+        type: string
+    type: object
+  dto.RenewAccessTokenPayload:
+    properties:
+      refreshToken:
+        type: string
+    required:
+    - refreshToken
+    type: object
+  dto.RenewAccessTokenResponse:
+    properties:
+      accessToken:
+        type: string
+      accessTokenExpiresAt:
+        type: string
+    type: object
+  dto.ReviewPayload:
+    properties:
+      decision:
+        allOf:
+        - $ref: '#/definitions/sqlc.ApprovalDecision'
+        enum:
+        - approve
+        - reject
+      note:
+        maxLength: 2000
+        type: string
+    required:
+    - decision
+    type: object
+  dto.ReviewResultDTO:
+    properties:
+      buildId:
+        example: ""
+        type: string
+      decision:
+        allOf:
+        - $ref: '#/definitions/sqlc.ApprovalDecision'
+        enum:
+        - approve
+        - reject
+      id:
+        type: string
+      note:
+        type: string
+      reviewedAt:
+        type: string
+      reviewedBy:
+        type: string
+    type: object
+  dto.SummaryDTO:
+    properties:
+      totalApps:
+        type: integer
+      totalBuilds:
+        type: integer
+      totalDownloads:
+        type: integer
+      totalTesters:
+        type: integer
+    type: object
+  dto.TesterDTO:
+    properties:
+      email:
+        type: string
+      id:
+        type: string
+      inviteUrl:
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/sqlc.EntityStatus'
+        enum:
+        - active
+        - disabled
+        - deleted
+    type: object
+  dto.TesterGroupDTO:
+    properties:
+      id:
+        type: string
+      memberCount:
+        type: integer
+      name:
+        type: string
+    type: object
+  dto.UpdateAppInfoPayload:
+    properties:
+      name:
+        example: GMO Delivery
+        maxLength: 100
+        type: string
+      platforms:
+        $ref: '#/definitions/dto.PlatformsDTO'
+    required:
+    - name
+    type: object
+  dto.UpdateRolePayload:
+    properties:
+      role:
+        allOf:
+        - $ref: '#/definitions/sqlc.UserRole'
+        enum:
+        - owner
+        - admin
+        - member
+        - tester
+    required:
+    - role
+    type: object
+  dto.UpdateStatusPayload:
+    properties:
+      status:
+        allOf:
+        - $ref: '#/definitions/sqlc.EntityStatus'
+        enum:
+        - active
+        - disabled
+    required:
+    - status
+    type: object
+  dto.UploadContentResult:
+    properties:
+      uploadKey:
+        type: string
+      uploaded:
+        example: true
+        type: boolean
+    type: object
+  dto.UserDTO:
+    properties:
+      createdAt:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      role:
+        allOf:
+        - $ref: '#/definitions/sqlc.UserRole'
+        enum:
+        - owner
+        - admin
+        - member
+        - tester
+      status:
+        allOf:
+        - $ref: '#/definitions/sqlc.EntityStatus'
+        enum:
+        - active
+        - disabled
+        - deleted
+    type: object
+  dto.UserGroupDTO:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/sqlc.EntityStatus'
+        enum:
+        - active
+        - disabled
+    type: object
+  dto.VisibilityPayload:
+    properties:
+      downloadLimit:
+        example: 500
+        minimum: 1
+        type: integer
+      expiresAt:
+        type: string
+      isPublic:
+        type: boolean
+    required:
+    - isPublic
+    type: object
+  handler.AppPage:
+    properties:
+      hasMore:
+        type: boolean
+      items:
+        items:
+          $ref: '#/definitions/dto.AppDTO'
+        type: array
+      page:
+        type: integer
+      pageSize:
+        type: integer
+      total:
+        type: integer
+      totalPages:
+        type: integer
+    type: object
+  handler.BuildPage:
+    properties:
+      hasMore:
+        type: boolean
+      items:
+        items:
+          $ref: '#/definitions/dto.BuildDTO'
+        type: array
+      page:
+        type: integer
+      pageSize:
+        type: integer
+      total:
+        type: integer
+      totalPages:
+        type: integer
+    type: object
+  handler.MyAppPage:
+    properties:
+      hasMore:
+        type: boolean
+      items:
+        items:
+          $ref: '#/definitions/dto.AppSummaryDTO'
+        type: array
+      page:
+        type: integer
+      pageSize:
+        type: integer
+      total:
+        type: integer
+      totalPages:
+        type: integer
+    type: object
+  handler.SuccessResult:
+    properties:
+      success:
+        example: true
+        type: boolean
+    type: object
+  handler.UserPage:
+    properties:
+      hasMore:
+        type: boolean
+      items:
+        items:
+          $ref: '#/definitions/dto.UserDTO'
+        type: array
+      page:
+        type: integer
+      pageSize:
+        type: integer
+      total:
+        type: integer
+      totalPages:
+        type: integer
+    type: object
+  sqlc.ApprovalDecision:
+    enum:
+    - approve
+    - reject
+    type: string
+    x-enum-varnames:
+    - ApprovalDecisionApprove
+    - ApprovalDecisionReject
+  sqlc.BuildStatus:
+    enum:
+    - processing
+    - ready
+    - pending_approval
+    - rejected
+    - archived
+    type: string
+    x-enum-varnames:
+    - BuildStatusProcessing
+    - BuildStatusReady
+    - BuildStatusPendingApproval
+    - BuildStatusRejected
+    - BuildStatusArchived
+  sqlc.EntityStatus:
+    enum:
+    - active
+    - disabled
+    - deleted
+    type: string
+    x-enum-varnames:
+    - EntityStatusActive
+    - EntityStatusDisabled
+    - EntityStatusDeleted
+  sqlc.Platform:
+    enum:
+    - ios
+    - android
+    type: string
+    x-enum-varnames:
+    - PlatformIos
+    - PlatformAndroid
+  sqlc.UserRole:
+    enum:
+    - admin
+    - member
+    - owner
+    - tester
+    type: string
+    x-enum-varnames:
+    - UserRoleAdmin
+    - UserRoleMember
+    - UserRoleOwner
+    - UserRoleTester
+info:
+  contact: {}
+  description: |-
+    Lưu file cài đặt (IPA/APK) và tạo link tải cho khách.
+    Mọi response JSON thành công bọc trong common.SuccessRes; lỗi trả common.AppError.
+
+    **Tài khoản test** (body mẫu của POST /api/v1/auth/login đã điền sẵn):
+
+    | Email    | tester@appdist.local |
+    | -------- | -------------------- |
+    | Mật khẩu | Test@e41ca7          |
+  title: AppDist API
+  version: "1.0"
+paths:
+  /api/v1/approvals:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.ApprovalDTO'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Yêu cầu duyệt build đang chờ (owner/admin, trong scope)
+      tags:
+      - approvals
+  /api/v1/approvals/{id}/review:
+    post:
+      consumes:
+      - application/json
+      description: approve → build ready; reject → build rejected. Đã duyệt rồi →
+        409.
+      parameters:
+      - description: Approval request ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Quyết định và ghi chú
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ReviewPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.ReviewResultDTO'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Duyệt hoặc từ chối build (owner/admin, trong scope)
+      tags:
+      - approvals
+  /api/v1/apps:
+    get:
+      description: owner thấy tất cả; role khác chỉ thấy App thuộc nhóm quản trị của
+        mình.
+      parameters:
+      - description: Lọc theo tên
+        in: query
+        name: search
+        type: string
+      - description: ios | android
+        enum:
+        - ios
+        - android
+        in: query
+        name: platform
+        type: string
+      - description: createdAt >= (RFC3339)
+        format: date-time
+        in: query
+        name: from
+        type: string
+      - description: createdAt <= (RFC3339)
+        format: date-time
+        in: query
+        name: to
+        type: string
+      - description: Mặc định 1
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - description: Mặc định 20
+        in: query
+        maximum: 100
+        minimum: 1
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.AppPage'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Danh sách App (phân trang)
+      tags:
+      - apps
+    post:
+      consumes:
+      - application/json
+      description: Cần ít nhất một platform và một nhóm quản trị. Admin chỉ gán được
+        nhóm mình là thành viên.
+      parameters:
+      - description: Tên, platforms, nhóm quản trị
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateAppPayload'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.AppDTO'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Tạo App (owner/admin)
+      tags:
+      - apps
+  /api/v1/apps/{id}:
+    get:
+      parameters:
+      - description: App ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.AppDTO'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Chi tiết App (ngoài scope → 404)
+      tags:
+      - apps
+  /api/v1/apps/{id}/approval:
+    patch:
+      consumes:
+      - application/json
+      description: Bật → build mới có status pending_approval và một yêu cầu duyệt
+        ở GET /approvals.
+      parameters:
+      - description: App ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: requiresApproval
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ApprovalPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.AppDTO'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Bật/tắt yêu cầu duyệt build (owner/admin trong scope)
+      tags:
+      - apps
+  /api/v1/apps/{id}/auto-assign-tester-groups:
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: App ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: autoAssignTesterGroups
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.AutoAssignPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.AppDTO'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Bật/tắt tự gán tester group mặc định cho build mới (owner/admin trong
+        scope)
+      tags:
+      - apps
+  /api/v1/apps/{id}/builds:
+    get:
+      description: |-
+        Gồm mọi trạng thái (ready, pending_approval, rejected, archived) trừ khi lọc bằng status.
+        App ngoài scope hoặc không tồn tại → 404.
+      parameters:
+      - description: App ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Tìm trong version, buildNumber, changelog (không phân biệt hoa
+          thường)
+        in: query
+        name: search
+        type: string
+      - description: Lọc theo platform
+        enum:
+        - ios
+        - android
+        in: query
+        name: platform
+        type: string
+      - description: Lọc theo trạng thái
+        enum:
+        - processing
+        - ready
+        - pending_approval
+        - rejected
+        - archived
+        in: query
+        name: status
+        type: string
+      - description: uploadedAt >= (RFC3339)
+        format: date-time
+        in: query
+        name: from
+        type: string
+      - description: uploadedAt <= (RFC3339)
+        format: date-time
+        in: query
+        name: to
+        type: string
+      - description: Mặc định uploadedAt; version so kiểu semver
+        enum:
+        - uploadedAt
+        - version
+        - buildNumber
+        in: query
+        name: sort
+        type: string
+      - description: Mặc định desc
+        enum:
+        - asc
+        - desc
+        in: query
+        name: order
+        type: string
+      - description: Mặc định 1
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - description: Mặc định 20
+        in: query
+        maximum: 100
+        minimum: 1
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.BuildPage'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Tất cả build của một App, mới nhất trước
+      tags:
+      - builds
+  /api/v1/apps/{id}/default-tester-groups/{testerGroupId}:
+    delete:
+      parameters:
+      - description: App ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Tester group ID
+        format: uuid
+        in: path
+        name: testerGroupId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.AppDTO'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Bỏ 1 tester group khỏi danh sách mặc định (owner/admin trong scope)
+      tags:
+      - apps
+    post:
+      parameters:
+      - description: App ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Tester group ID
+        format: uuid
+        in: path
+        name: testerGroupId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.AppDTO'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Thêm 1 tester group vào danh sách mặc định (owner/admin trong scope)
+      tags:
+      - apps
+  /api/v1/apps/{id}/info:
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: App ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Tên, platforms
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateAppInfoPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.AppDTO'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Sửa tên và platforms (owner/admin trong scope)
+      tags:
+      - apps
+  /api/v1/apps/{id}/managing-groups/{groupId}:
+    delete:
+      parameters:
+      - description: App ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Group ID
+        format: uuid
+        in: path
+        name: groupId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.AppDTO'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Gỡ 1 nhóm quản trị (không gỡ được nhóm cuối cùng)
+      tags:
+      - apps
+    post:
+      parameters:
+      - description: App ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Group ID
+        format: uuid
+        in: path
+        name: groupId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.AppDTO'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Gán thêm 1 nhóm quản trị (owner/admin trong scope)
+      tags:
+      - apps
+  /api/v1/apps/{id}/public:
+    get:
+      description: |-
+        Chỉ trả khi App isPublic=true và chưa hết hạn; App private, hết hạn hoặc không tồn tại → 404.
+        builds: cùng query params và dạng response với GET /tester/my-apps/{appId}/builds —
+        chỉ bản ready còn cài được (còn hạn, chưa hết downloadLimit). counts không phụ thuộc bộ lọc platform.
+        Mở từng build bằng GET /api/v1/releases/{shareToken}.
+      parameters:
+      - description: App ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Lọc theo loại build
+        enum:
+        - ios
+        - android
+        in: query
+        name: platform
+        type: string
+      - description: Mặc định buildNumber
+        enum:
+        - buildNumber
+        - uploadedAt
+        in: query
+        name: sort
+        type: string
+      - description: Mặc định desc
+        enum:
+        - asc
+        - desc
+        in: query
+        name: order
+        type: string
+      - description: Mặc định 1
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - description: Mặc định 20
+        in: query
+        maximum: 100
+        minimum: 1
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.PublicAppDTO'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.AppError'
+      summary: Trang App công khai (không cần đăng nhập)
+      tags:
+      - apps
+  /api/v1/apps/{id}/tokens:
+    get:
+      parameters:
+      - description: App ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.APIKeyDTO'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Danh sách API key còn hiệu lực (không có plaintext)
+      tags:
+      - api-keys
+    post:
+      consumes:
+      - application/json
+      description: token (plaintext) chỉ trả về đúng 1 lần này. Một key dùng chung
+        cho mọi platform của App.
+      parameters:
+      - description: App ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Nhãn để nhận diện
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateAPIKeyPayload'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.APIKeyDTO'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Tạo API key cho CI/CD (owner/admin trong scope)
+      tags:
+      - api-keys
+  /api/v1/apps/{id}/tokens/{tokenId}:
+    delete:
+      parameters:
+      - description: App ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: API key ID
+        format: uuid
+        in: path
+        name: tokenId
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Thu hồi API key ngay lập tức
+      tags:
+      - api-keys
+  /api/v1/apps/{id}/visibility:
+    patch:
+      consumes:
+      - application/json
+      description: |-
+        isPublic=false: link tải chỉ mở được qua installUrl do GET /releases/{token} cấp cho người có quyền.
+        expiresAt/downloadLimit null = bỏ giới hạn. downloadLimit tính cho MỖI build.
+      parameters:
+      - description: App ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Cấu hình hiển thị
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.VisibilityPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.AppDTO'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Đặt chế độ public, hạn link, giới hạn lượt tải (owner/admin trong scope)
+      tags:
+      - apps
+  /api/v1/auth/accept-invite:
+    post:
+      consumes:
+      - application/json
+      description: token lấy từ link mời (inviteUrl) trả về khi tạo member/tester.
+      parameters:
+      - description: Token mời, mật khẩu mới, tên hiển thị (tuỳ chọn)
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.AcceptInvitePayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.LoginResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.AppError'
+      summary: 'Nhận lời mời: đặt mật khẩu lần đầu và đăng nhập'
+      tags:
+      - auth
+  /api/v1/auth/login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Email và mật khẩu
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LoginPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.LoginResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.AppError'
+      summary: Đăng nhập
+      tags:
+      - auth
+  /api/v1/auth/logout:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Refresh token của phiên cần đóng
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LogoutPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.SuccessResult'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.AppError'
+      summary: Đăng xuất (chặn phiên của refresh token này)
+      tags:
+      - auth
+  /api/v1/auth/refresh:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Refresh token
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RenewAccessTokenPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.RenewAccessTokenResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.AppError'
+      summary: Làm mới access token bằng refresh token
+      tags:
+      - auth
+  /api/v1/builds:
+    get:
+      description: Không gồm quick share. Mặc định mới upload nhất trước.
+      parameters:
+      - description: Lọc theo App
+        format: uuid
+        in: query
+        name: appId
+        type: string
+      - description: Tìm trong version, buildNumber, changelog (không phân biệt hoa
+          thường)
+        in: query
+        name: search
+        type: string
+      - description: Lọc theo platform
+        enum:
+        - ios
+        - android
+        in: query
+        name: platform
+        type: string
+      - description: Lọc theo trạng thái
+        enum:
+        - processing
+        - ready
+        - pending_approval
+        - rejected
+        - archived
+        in: query
+        name: status
+        type: string
+      - description: uploadedAt >= (RFC3339)
+        format: date-time
+        in: query
+        name: from
+        type: string
+      - description: uploadedAt <= (RFC3339)
+        format: date-time
+        in: query
+        name: to
+        type: string
+      - description: Mặc định uploadedAt; version so kiểu semver
+        enum:
+        - uploadedAt
+        - version
+        - buildNumber
+        in: query
+        name: sort
+        type: string
+      - description: Mặc định desc
+        enum:
+        - asc
+        - desc
+        in: query
+        name: order
+        type: string
+      - description: Mặc định 1
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - description: Mặc định 20
+        in: query
+        maximum: 100
+        minimum: 1
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.BuildPage'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Danh sách build của các App trong scope (lọc, sắp xếp, phân trang)
+      tags:
+      - builds
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Thông tin app (bundle id, version, build number, icon...) đọc từ nội dung file.
+        Bundle id trong file phải khớp platform tương ứng của App. File không hợp lệ bị xoá khỏi storage.
+        App bật requiresApproval → status pending_approval; autoAssignTesterGroups → kế thừa tester group mặc định.
+      parameters:
+      - description: uploadKey, appId, changelog
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateBuildPayload'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.BuildDTO'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "413":
+          description: Request Entity Too Large
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: 'Bước 3 (web): đọc thông tin từ file đã upload và tạo build cho App'
+      tags:
+      - builds
+  /api/v1/builds/{id}/archive:
+    patch:
+      parameters:
+      - description: Build ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.BuildDTO'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Lưu trữ build — link tải ngừng hoạt động (owner/admin)
+      tags:
+      - builds
+  /api/v1/builds/{id}/tester-groups/{testerGroupId}:
+    delete:
+      parameters:
+      - description: Build ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Tester group ID
+        format: uuid
+        in: path
+        name: testerGroupId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.BuildDTO'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Gỡ 1 tester group khỏi build (mọi role nội bộ, trong scope)
+      tags:
+      - builds
+    post:
+      parameters:
+      - description: Build ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Tester group ID
+        format: uuid
+        in: path
+        name: testerGroupId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.BuildDTO'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Gán 1 tester group cho build (mọi role nội bộ, trong scope)
+      tags:
+      - builds
+  /api/v1/builds/upload:
+    post:
+      consumes:
+      - multipart/form-data
+      description: |-
+        Xác thực bằng header X-Api-Key (CI — appId lấy từ key) hoặc Bearer (web — bắt buộc appId).
+        version/buildNumber client gửi bị bỏ qua: luôn đọc từ file. platform nếu gửi phải khớp file.
+        File stream thẳng lên storage, không buffer trên server.
+      parameters:
+      - description: File .ipa hoặc .apk
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: Bắt buộc khi dùng Bearer
+        format: uuid
+        in: formData
+        name: appId
+        type: string
+      - description: ios | android — kiểm tra khớp với file
+        enum:
+        - ios
+        - android
+        in: formData
+        name: platform
+        type: string
+      - description: Ghi chú bản build
+        in: formData
+        name: changelog
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.BuildDTO'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "413":
+          description: Request Entity Too Large
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      - ApiKeyAuth: []
+      summary: Upload build bằng multipart (CI hoặc web)
+      tags:
+      - builds
+  /api/v1/builds/uploads:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Kiểm tra đuôi (.ipa/.apk) và dung lượng, trả uploadUrl (hạn 1 giờ).
+        Client PUT file thẳng lên uploadUrl, rồi gọi POST /api/v1/builds với uploadKey + appId.
+      parameters:
+      - description: Tên và dung lượng file
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.InitUploadPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.InitUploadResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "413":
+          description: Request Entity Too Large
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: 'Bước 1 (web): xin presigned URL để PUT file lên storage'
+      tags:
+      - builds
+  /api/v1/builds/uploads/content:
+    put:
+      consumes:
+      - application/octet-stream
+      description: |-
+        Chỉ dùng khi không PUT thẳng lên uploadUrl được (bucket chưa bật CORS).
+        Body là nội dung file thô, bắt buộc có Content-Length.
+      parameters:
+      - description: uploadKey nhận từ bước 1
+        in: query
+        name: key
+        required: true
+        type: string
+      - description: Nội dung file .ipa/.apk
+        format: binary
+        in: body
+        name: file
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.UploadContentResult'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "411":
+          description: Length Required
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "413":
+          description: Request Entity Too Large
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: 'Bước 2 (dự phòng): gửi file qua server'
+      tags:
+      - builds
+  /api/v1/groups:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.GroupDTO'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Danh sách nhóm (không gồm nhóm đã xoá)
+      tags:
+      - groups
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Tên nhóm, nhóm cha (tuỳ chọn)
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateGroupPayload'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.GroupDTO'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Tạo nhóm quản trị (owner/admin)
+      tags:
+      - groups
+  /api/v1/groups/{id}:
+    delete:
+      parameters:
+      - description: Group ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Xoá mềm nhóm (owner/admin)
+      tags:
+      - groups
+    get:
+      parameters:
+      - description: Group ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.GroupDTO'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Chi tiết nhóm
+      tags:
+      - groups
+  /api/v1/groups/{id}/members/{userId}:
+    delete:
+      parameters:
+      - description: Group ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: User ID
+        format: uuid
+        in: path
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.GroupDTO'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Bỏ 1 thành viên khỏi nhóm (owner/admin) — tài khoản giữ nguyên
+      tags:
+      - groups
+    post:
+      description: |-
+        User phải có tài khoản sẵn (POST /api/v1/users/create). 1 user là thành viên được nhiều nhóm.
+        Chỉ ảnh hưởng phạm vi nhóm, không đụng trạng thái tài khoản. Đã có thì không làm gì.
+      parameters:
+      - description: Group ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: User ID
+        format: uuid
+        in: path
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.GroupDTO'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Thêm 1 user làm thành viên nhóm (owner/admin)
+      tags:
+      - groups
+  /api/v1/groups/{id}/restore:
+    post:
+      parameters:
+      - description: Group ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.GroupDTO'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Mở khoá hoặc khôi phục nhóm đã xoá (owner/admin)
+      tags:
+      - groups
+  /api/v1/groups/{id}/status:
+    patch:
+      consumes:
+      - application/json
+      description: Khoá nhóm → member trong nhóm mất quyền quản lý App do nhóm phụ
+        trách ngay; member vẫn còn trong nhóm.
+      parameters:
+      - description: Group ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: active hoặc disabled
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateStatusPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.GroupDTO'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Khoá / mở khoá nhóm (owner/admin)
+      tags:
+      - groups
+  /api/v1/groups/deleted:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.GroupDTO'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Danh sách nhóm đã xoá (owner/admin)
+      tags:
+      - groups
+  /api/v1/quick-share:
+    post:
+      consumes:
+      - multipart/form-data
+      description: |-
+        Không cần đăng nhập. Có gửi Bearer hợp lệ thì ghi lại người upload, không thì lưu ẩn danh.
+        Thông tin app và icon đọc từ file phía server, không nhận từ client.
+        Link tự hết hạn sau 7 ngày, file bị dọn khỏi storage sau đó.
+      parameters:
+      - description: File .ipa hoặc .apk
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: Ghi chú
+        in: formData
+        name: changelog
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.ReleaseDTO'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "413":
+          description: Request Entity Too Large
+          schema:
+            $ref: '#/definitions/common.AppError'
+      summary: Chia sẻ nhanh một file .ipa/.apk (không gắn App, không cần đăng nhập)
+      tags:
+      - releases
+  /api/v1/releases/{token}:
+    get:
+      description: |-
+        App public: ai cũng xem được. App không public: cần Bearer của owner, member trong scope,
+        hoặc tester được gán build — installUrl trả về kèm vé hạn 24 giờ. Không đủ quyền → 404.
+        Link chia sẻ của App không public kèm vé ?t= — trang FE chuyển tiếp vé đó vào đây thì không cần Bearer.
+        requiresPassword luôn false (chưa làm tính năng mật khẩu).
+      parameters:
+      - description: Share token
+        in: path
+        name: token
+        required: true
+        type: string
+      - description: Vé trên link chia sẻ (App không public)
+        in: query
+        name: t
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.ReleaseDTO'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "410":
+          description: Gone
+          schema:
+            $ref: '#/definitions/common.AppError'
+      summary: Dữ liệu trang tải (public)
+      tags:
+      - releases
+  /api/v1/stats/downloads:
+    get:
+      description: Bỏ trống from/to = 7 ngày gần nhất. Tối đa 366 ngày.
+      parameters:
+      - description: YYYY-MM-DD
+        format: date
+        in: query
+        name: from
+        type: string
+      - description: YYYY-MM-DD
+        format: date
+        in: query
+        name: to
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.DailyDownloadsDTO'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Lượt tải theo ngày (giờ Việt Nam, lọc theo scope App)
+      tags:
+      - stats
+  /api/v1/stats/summary:
+    get:
+      description: totalDownloads = số lần tải file thật, không tính mở trang tải.
+        totalTesters không lọc scope.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.SummaryDTO'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Số liệu tổng quan (lọc theo scope App)
+      tags:
+      - stats
+  /api/v1/tester-groups:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.TesterGroupDTO'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Danh sách tester group
+      tags:
+      - tester-groups
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Tên nhóm
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateTesterGroupPayload'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.TesterGroupDTO'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Tạo tester group
+      tags:
+      - tester-groups
+  /api/v1/tester-groups/{id}:
+    get:
+      parameters:
+      - description: Tester group ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.TesterGroupDTO'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Chi tiết tester group
+      tags:
+      - tester-groups
+  /api/v1/tester-groups/{id}/testers:
+    get:
+      parameters:
+      - description: Tester group ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.TesterDTO'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Tester trong nhóm (không gồm tester đã xoá)
+      tags:
+      - tester-groups
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Email chưa có tài khoản → tạo tài khoản tester, response kèm inviteUrl để gửi cho tester.
+        Email đã có trong nhóm → trả bản ghi cũ và kích hoạt lại.
+      parameters:
+      - description: Tester group ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Danh sách email
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.AddTestersPayload'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.TesterDTO'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Thêm tester theo email (tối đa 100/lần)
+      tags:
+      - tester-groups
+  /api/v1/tester-groups/{id}/testers/{testerId}:
+    delete:
+      parameters:
+      - description: Tester group ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Tester ID
+        format: uuid
+        in: path
+        name: testerId
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Xoá mềm tester khỏi nhóm
+      tags:
+      - tester-groups
+  /api/v1/tester-groups/{id}/testers/{testerId}/restore:
+    post:
+      parameters:
+      - description: Tester group ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Tester ID
+        format: uuid
+        in: path
+        name: testerId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.TesterDTO'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Mở khoá hoặc khôi phục tester
+      tags:
+      - tester-groups
+  /api/v1/tester-groups/{id}/testers/{testerId}/status:
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Tester group ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Tester ID
+        format: uuid
+        in: path
+        name: testerId
+        required: true
+        type: string
+      - description: active hoặc disabled
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateStatusPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.TesterDTO'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Khoá / mở khoá tester
+      tags:
+      - tester-groups
+  /api/v1/tester-groups/{id}/testers/deleted:
+    get:
+      parameters:
+      - description: Tester group ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.TesterDTO'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Tester đã xoá trong nhóm
+      tags:
+      - tester-groups
+  /api/v1/tester/my-apps:
+    get:
+      description: Chỉ App có ít nhất một build ready được gán cho tester group chứa
+        tester (đang active).
+      parameters:
+      - description: Lọc theo tên
+        in: query
+        name: search
+        type: string
+      - description: createdAt >= (RFC3339)
+        format: date-time
+        in: query
+        name: from
+        type: string
+      - description: createdAt <= (RFC3339)
+        format: date-time
+        in: query
+        name: to
+        type: string
+      - description: Mặc định 1
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - description: Mặc định 20
+        in: query
+        maximum: 100
+        minimum: 1
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.MyAppPage'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: App mà tester được mời xem (phân trang)
+      tags:
+      - tester
+  /api/v1/tester/my-apps/{appId}/builds:
+    get:
+      description: |-
+        sort=buildNumber so theo thứ tự số ("9" < "45", "1.10" > "1.9"); cùng build number thì mới hơn trước.
+        counts = số build theo từng platform, KHÔNG phụ thuộc bộ lọc platform (để hiện số trên tab).
+        total/totalPages/hasMore tính theo bộ lọc platform đang áp.
+      parameters:
+      - description: App ID
+        format: uuid
+        in: path
+        name: appId
+        required: true
+        type: string
+      - description: Lọc theo loại build
+        enum:
+        - ios
+        - android
+        in: query
+        name: platform
+        type: string
+      - description: Mặc định buildNumber
+        enum:
+        - buildNumber
+        - uploadedAt
+        in: query
+        name: sort
+        type: string
+      - description: Mặc định desc
+        enum:
+        - asc
+        - desc
+        in: query
+        name: order
+        type: string
+      - description: Mặc định 1
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - description: Mặc định 20
+        in: query
+        maximum: 100
+        minimum: 1
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.AppBuildPage'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Build ready của App mà tester được mời xem (lọc platform, sắp xếp,
+        phân trang)
+      tags:
+      - tester
+  /api/v1/users:
+    get:
+      parameters:
+      - description: Tìm theo tên hoặc email (không phân biệt hoa thường)
+        in: query
+        name: search
+        type: string
+      - description: Lọc theo role
+        enum:
+        - owner
+        - admin
+        - member
+        - tester
+        in: query
+        name: role
+        type: string
+      - description: Mặc định createdAt
+        enum:
+        - createdAt
+        - name
+        - email
+        - role
+        in: query
+        name: sort
+        type: string
+      - description: Mặc định desc
+        enum:
+        - asc
+        - desc
+        in: query
+        name: order
+        type: string
+      - description: Mặc định 1
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - description: Mặc định 20
+        in: query
+        maximum: 100
+        minimum: 1
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.UserPage'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Danh sách tài khoản (không gồm tài khoản đã xoá)
+      tags:
+      - users
+  /api/v1/users/{id}:
+    delete:
+      parameters:
+      - description: User ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Xoá mềm tài khoản (khôi phục được)
+      tags:
+      - users
+    get:
+      parameters:
+      - description: User ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.UserDTO'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Chi tiết tài khoản
+      tags:
+      - users
+  /api/v1/users/{id}/groups:
+    get:
+      parameters:
+      - description: User ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.UserGroupDTO'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Các nhóm quản trị mà user là thành viên
+      tags:
+      - users
+  /api/v1/users/{id}/restore:
+    post:
+      parameters:
+      - description: User ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.UserDTO'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Mở khoá hoặc khôi phục tài khoản đã xoá
+      tags:
+      - users
+  /api/v1/users/{id}/role:
+    patch:
+      consumes:
+      - application/json
+      description: Hạ xuống tester → tự gỡ khỏi mọi nhóm quản trị.
+      parameters:
+      - description: User ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Role mới
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateRolePayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.UserDTO'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Đổi role tài khoản (chỉ owner)
+      tags:
+      - users
+  /api/v1/users/{id}/status:
+    patch:
+      consumes:
+      - application/json
+      description: |-
+        owner tác động được mọi người, admin không đụng được owner. Không tự khoá chính mình (400).
+        Khoá tài khoản chặn đăng nhập và mọi phiên đang mở — khác với bỏ user khỏi một nhóm.
+      parameters:
+      - description: User ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: active hoặc disabled
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateStatusPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.UserDTO'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Khoá / mở khoá tài khoản
+      tags:
+      - users
+  /api/v1/users/create:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Tài khoản dùng được ngay với mật khẩu đặt lúc tạo. owner tạo được mọi role, admin chỉ tạo role member hoặc tester.
+        Tester chỉ đăng nhập để xem build được mời (/tester/*), không vào được API quản trị; gán qua tester group.
+        Muốn user vào nhóm quản trị: POST /api/v1/groups/{id}/members/{userId}.
+      parameters:
+      - description: Email, tên, mật khẩu, role
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateUserPayload'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.UserDTO'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Tạo tài khoản (owner/admin)
+      tags:
+      - users
+  /api/v1/users/deleted:
+    get:
+      parameters:
+      - description: Tìm theo tên hoặc email (không phân biệt hoa thường)
+        in: query
+        name: search
+        type: string
+      - description: Lọc theo role
+        enum:
+        - owner
+        - admin
+        - member
+        - tester
+        in: query
+        name: role
+        type: string
+      - description: Mặc định createdAt
+        enum:
+        - createdAt
+        - name
+        - email
+        - role
+        in: query
+        name: sort
+        type: string
+      - description: Mặc định desc
+        enum:
+        - asc
+        - desc
+        in: query
+        name: order
+        type: string
+      - description: Mặc định 1
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - description: Mặc định 20
+        in: query
+        maximum: 100
+        minimum: 1
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.UserPage'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Danh sách tài khoản đã xoá (owner/admin)
+      tags:
+      - users
+  /api/v1/users/me:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.UserDTO'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Thông tin tài khoản đang đăng nhập
+      tags:
+      - users
+  /api/v1/users/me/password:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Mật khẩu cũ và mới
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ChangePasswordPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.SuccessRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.SuccessResult'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/common.AppError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.AppError'
+      security:
+      - BearerAuth: []
+      summary: Đổi mật khẩu của chính mình
+      tags:
+      - users
+  /d/{token}/app.apk:
+    get:
+      parameters:
+      - description: Token trên link tải
+        in: path
+        name: token
+        required: true
+        type: string
+      - description: Vé tải — bắt buộc nếu App không public (lấy từ installUrl của
+          GET /releases)
+        in: query
+        name: t
+        type: string
+      responses:
+        "302":
+          description: 'Location: presigned URL, hạn 15 phút'
+        "404":
+          description: not found
+          schema:
+            type: string
+        "410":
+          description: link unavailable
+          schema:
+            type: string
+      summary: Tải file cài đặt (redirect sang link tạm trên storage)
+      tags:
+      - downloads
+    head:
+      parameters:
+      - description: Token trên link tải
+        in: path
+        name: token
+        required: true
+        type: string
+      - description: Vé tải — bắt buộc nếu App không public (lấy từ installUrl của
+          GET /releases)
+        in: query
+        name: t
+        type: string
+      responses:
+        "302":
+          description: 'Location: presigned URL, hạn 15 phút'
+        "404":
+          description: not found
+          schema:
+            type: string
+        "410":
+          description: link unavailable
+          schema:
+            type: string
+      summary: Tải file cài đặt (redirect sang link tạm trên storage)
+      tags:
+      - downloads
+  /d/{token}/app.ipa:
+    get:
+      parameters:
+      - description: Token trên link tải
+        in: path
+        name: token
+        required: true
+        type: string
+      - description: Vé tải — bắt buộc nếu App không public (lấy từ installUrl của
+          GET /releases)
+        in: query
+        name: t
+        type: string
+      responses:
+        "302":
+          description: 'Location: presigned URL, hạn 15 phút'
+        "404":
+          description: not found
+          schema:
+            type: string
+        "410":
+          description: link unavailable
+          schema:
+            type: string
+      summary: Tải file cài đặt (redirect sang link tạm trên storage)
+      tags:
+      - downloads
+    head:
+      parameters:
+      - description: Token trên link tải
+        in: path
+        name: token
+        required: true
+        type: string
+      - description: Vé tải — bắt buộc nếu App không public (lấy từ installUrl của
+          GET /releases)
+        in: query
+        name: t
+        type: string
+      responses:
+        "302":
+          description: 'Location: presigned URL, hạn 15 phút'
+        "404":
+          description: not found
+          schema:
+            type: string
+        "410":
+          description: link unavailable
+          schema:
+            type: string
+      summary: Tải file cài đặt (redirect sang link tạm trên storage)
+      tags:
+      - downloads
+  /d/{token}/icon.png:
+    get:
+      parameters:
+      - description: Token trên link tải
+        in: path
+        name: token
+        required: true
+        type: string
+      responses:
+        "302":
+          description: 'Location: presigned URL của icon'
+        "404":
+          description: not found
+          schema:
+            type: string
+        "410":
+          description: link unavailable
+          schema:
+            type: string
+      summary: Icon của app (redirect sang link tạm trên storage)
+      tags:
+      - downloads
+  /d/{token}/manifest.plist:
+    get:
+      parameters:
+      - description: Token trên link tải
+        in: path
+        name: token
+        required: true
+        type: string
+      - description: Vé tải — bắt buộc nếu App không public (lấy từ installUrl của
+          GET /releases)
+        in: query
+        name: t
+        type: string
+      produces:
+      - text/xml
+      responses:
+        "200":
+          description: plist XML
+          schema:
+            type: string
+        "404":
+          description: not found
+          schema:
+            type: string
+        "410":
+          description: link unavailable
+          schema:
+            type: string
+      summary: manifest.plist cho itms-services (iOS)
+      tags:
+      - downloads
+  /d/{token}/qr.png:
+    get:
+      parameters:
+      - description: Token trên link tải
+        in: path
+        name: token
+        required: true
+        type: string
+      - description: Vé tải — bắt buộc nếu App không public (lấy từ installUrl của
+          GET /releases)
+        in: query
+        name: t
+        type: string
+      produces:
+      - image/png
+      responses:
+        "200":
+          description: Ảnh PNG
+          schema:
+            type: file
+        "404":
+          description: not found
+          schema:
+            type: string
+        "410":
+          description: link unavailable
+          schema:
+            type: string
+      summary: Mã QR trỏ tới trang tải
+      tags:
+      - downloads
+  /health:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":"ok"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Kiểm tra server còn sống
+      tags:
+      - system
+securityDefinitions:
+  ApiKeyAuth:
+    description: API key của App (POST /api/v1/apps/{id}/tokens) — chỉ dùng cho POST
+      /api/v1/builds/upload.
+    in: header
+    name: X-Api-Key
+    type: apiKey
+  BearerAuth:
+    description: Nhập "Bearer <accessToken>" lấy từ POST /api/v1/auth/login.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

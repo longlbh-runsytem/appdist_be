@@ -1,0 +1,23 @@
+# Secret không bao giờ vào image — kể cả stage build.
+*.env
+.env
+.env.*
+stores/
+*.p8
+*.p12
+*.mobileprovision
+
+# Không cần để build.
+bin/
+dist/
+tmp/
+plans/
+.idea/
+.vscode/
+.DS_Store
+*.test
+*.out
+coverage.html
+dbml-error.log
+Dockerfile
+docker-compose.yml

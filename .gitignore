@@ -1,0 +1,27 @@
+bin/
+dist/
+/createadmin
+*.test
+*.out
+*.log
+coverage.html
+vendor/
+.idea/
+.vscode/
+.DS_Store
+tmp/
+
+# Env thật chứa secret — chỉ commit file mẫu.
+*.env
+.env
+.env.*
+!app.env.example
+!prod.env.example
+
+# Secret Apple / chứng chỉ không bao giờ nằm trong repo.
+stores/
+*.p8
+*.p12
+*.pem
+*.key
+*.mobileprovision

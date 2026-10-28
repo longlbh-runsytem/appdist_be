@@ -1,0 +1,3 @@
+DROP TABLE IF EXISTS "downloads";
+DROP TABLE IF EXISTS "builds";
+DROP TYPE IF EXISTS "platform";

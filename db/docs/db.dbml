@@ -1,0 +1,332 @@
+Project appdist {
+  database_type: 'PostgreSQL'
+  Note: '''
+    # AppDist Database
+
+    Nơi lưu file cài đặt (IPA/APK) và tạo link tải — thay thế Diawi.
+
+    Nguyên tắc:
+    - IPA đã được ký in-house từ lúc build, server KHÔNG ký lại, KHÔNG cần UDID.
+    - Người upload phải có tài khoản. Người tải chỉ cần link (builds.token) nếu App public.
+    - File nằm trên Backblaze B2 (bucket private). DB chỉ lưu object key.
+    - Mọi thông tin app (tên, bundle id, version, build number...) đọc từ BÊN TRONG file lúc upload,
+      không tin giá trị client tự khai.
+    - Quyền trên App theo Nhóm quản trị (groups): owner thấy mọi App; admin/member chỉ thấy App
+      có ít nhất một nhóm quản trị đang active mà mình là thành viên.
+    - Xoá là xoá mềm (status = deleted) để khôi phục được.
+  '''
+}
+
+// =============== ENUMS ===============
+
+enum user_role {
+  "admin"  [note: 'quản lý member (role member), nhóm, App trong scope']
+  "member" [note: 'upload build, quản lý tester trong scope']
+  "owner"  [note: 'toàn quyền, thấy mọi App, đổi role']
+  "tester" [note: 'người ngoài, chỉ xem build được mời qua tester group — không vào được API nội bộ']
+}
+
+enum entity_status {
+  "active"
+  "disabled" [note: 'khoá tạm, khôi phục được']
+  "deleted"  [note: 'xoá mềm, khôi phục được']
+}
+
+enum platform {
+  "ios"     [note: 'file .ipa']
+  "android" [note: 'file .apk']
+}
+
+enum build_status {
+  "processing"       [note: 'dự phòng cho xử lý nền — parse hiện chạy đồng bộ nên chưa dùng']
+  "ready"
+  "pending_approval" [note: 'App bật requires_approval, chờ owner/admin duyệt']
+  "rejected"
+  "archived"         [note: 'link tải ngừng hoạt động']
+}
+
+enum build_source {
+  "app"         [note: 'build của một App']
+  "quick_share" [note: 'chia sẻ nhanh, không gắn App, tự hết hạn sau 7 ngày']
+}
+
+enum approval_decision {
+  "approve"
+  "reject"
+}
+
+// =============== USER ===============
+
+Table users as U {
+  id uuid [pk, default: `gen_random_uuid()`]
+  email varchar [unique, not null]
+  hashed_password varchar [not null, note: 'rỗng = chưa nhận lời mời, không đăng nhập được']
+  full_name varchar [not null]
+  role user_role [not null, default: 'member']
+  status entity_status [not null, default: 'active']
+  invited_by uuid [null]
+  password_changed_at timestamptz [not null, default: '0001-01-01 00:00:00Z']
+  updated_at timestamptz
+  created_at timestamptz [not null, default: `now()`, note: 'cũng là thời điểm được mời (invitedAt)']
+}
+
+Ref: U.invited_by > U.id [delete: set null]
+
+Table sessions {
+  id uuid [pk, default: `gen_random_uuid()`]
+  user_id uuid [not null]
+  refresh_token varchar [not null]
+  user_agent varchar [not null]
+  client_ip varchar [not null]
+  is_blocked boolean [not null, default: false]
+  expires_at timestamptz [not null]
+  created_at timestamptz [not null, default: `now()`]
+
+  Indexes {
+    user_id
+  }
+}
+
+Ref: sessions.user_id > U.id [delete: cascade]
+
+Table invitations {
+  id uuid [pk, default: `gen_random_uuid()`]
+  user_id uuid [not null]
+  token_hash varchar [unique, not null, note: 'sha256 của token trên link mời — không lưu plaintext']
+  expires_at timestamptz [not null]
+  accepted_at timestamptz [null]
+  created_at timestamptz [not null, default: `now()`]
+
+  Note: 'Chưa có hạ tầng gửi email: API trả link mời để người mời tự gửi.'
+
+  Indexes {
+    user_id
+  }
+}
+
+Ref: invitations.user_id > U.id [delete: cascade]
+
+// =============== GROUP (nhóm quản trị) ===============
+
+Table groups {
+  id uuid [pk, default: `gen_random_uuid()`]
+  name varchar [not null]
+  parent_id uuid [null, note: 'chỉ để hiển thị cây — KHÔNG kế thừa quyền']
+  status entity_status [not null, default: 'active', note: 'disabled = thành viên mất quyền trên App của nhóm']
+  created_by uuid [not null]
+  updated_at timestamptz
+  created_at timestamptz [not null, default: `now()`]
+}
+
+Ref: groups.parent_id > groups.id [delete: set null]
+Ref: groups.created_by > U.id [delete: restrict]
+
+Table group_members {
+  group_id uuid [not null]
+  user_id uuid [not null]
+  added_at timestamptz [not null, default: `now()`]
+
+  Indexes {
+    (group_id, user_id) [pk]
+    user_id
+  }
+}
+
+Ref: group_members.group_id > groups.id [delete: cascade]
+Ref: group_members.user_id > U.id [delete: cascade]
+
+// =============== TESTER ===============
+
+Table tester_groups {
+  id uuid [pk, default: `gen_random_uuid()`]
+  name varchar [not null]
+  created_by uuid [not null]
+  updated_at timestamptz
+  created_at timestamptz [not null, default: `now()`]
+}
+
+Ref: tester_groups.created_by > U.id [delete: restrict]
+
+Table testers {
+  id uuid [pk, default: `gen_random_uuid()`]
+  tester_group_id uuid [not null]
+  user_id uuid [not null, note: 'tài khoản đăng nhập của tester (role tester, hoặc member nội bộ có sẵn)']
+  status entity_status [not null, default: 'active']
+  updated_at timestamptz
+  created_at timestamptz [not null, default: `now()`]
+
+  Indexes {
+    (tester_group_id, user_id) [unique]
+    user_id
+  }
+}
+
+Ref: testers.tester_group_id > tester_groups.id [delete: cascade]
+Ref: testers.user_id > U.id [delete: cascade]
+
+// =============== APP ===============
+
+Table apps {
+  id uuid [pk, default: `gen_random_uuid()`]
+  name varchar [not null]
+  ios_bundle_id varchar [null, note: 'unique khi khác null']
+  android_bundle_id varchar [null, note: 'unique khi khác null']
+  icon_key varchar [null, note: 'icon của build mới nhất']
+  is_public bool [not null, default: false, note: 'false = link tải chỉ mở được qua ticket do API cấp cho người có quyền']
+  expires_at timestamptz [null, note: 'sau thời điểm này mọi link tải của App ngừng hoạt động']
+  download_limit int [null, note: 'số lượt tải tối đa của MỖI build']
+  requires_approval bool [not null, default: false]
+  auto_assign_tester_groups bool [not null, default: false]
+  created_by uuid [not null]
+  updated_at timestamptz
+  created_at timestamptz [not null, default: `now()`]
+
+  Note: 'check: ít nhất một trong ios_bundle_id / android_bundle_id khác null'
+}
+
+Ref: apps.created_by > U.id [delete: restrict]
+
+Table app_managing_groups {
+  app_id uuid [not null]
+  group_id uuid [not null]
+  created_at timestamptz [not null, default: `now()`]
+
+  Indexes {
+    (app_id, group_id) [pk]
+    group_id
+  }
+}
+
+Ref: app_managing_groups.app_id > apps.id [delete: cascade]
+Ref: app_managing_groups.group_id > groups.id [delete: cascade]
+
+Table app_default_tester_groups {
+  app_id uuid [not null]
+  tester_group_id uuid [not null]
+  created_at timestamptz [not null, default: `now()`]
+
+  Indexes {
+    (app_id, tester_group_id) [pk]
+  }
+}
+
+Ref: app_default_tester_groups.app_id > apps.id [delete: cascade]
+Ref: app_default_tester_groups.tester_group_id > tester_groups.id [delete: cascade]
+
+Table app_api_keys {
+  id uuid [pk, default: `gen_random_uuid()`]
+  app_id uuid [not null]
+  label varchar [not null]
+  token_hash varchar [unique, not null, note: 'sha256 của key — plaintext chỉ trả về đúng 1 lần lúc tạo']
+  token_preview varchar [not null, note: '6 ký tự cuối, để nhận diện']
+  created_by uuid [not null]
+  last_used_at timestamptz [null]
+  revoked_at timestamptz [null]
+  created_at timestamptz [not null, default: `now()`]
+
+  Indexes {
+    (app_id, created_at)
+  }
+}
+
+Ref: app_api_keys.app_id > apps.id [delete: cascade]
+Ref: app_api_keys.created_by > U.id [delete: restrict]
+
+// =============== BUILD ===============
+
+Table builds {
+  id bigserial [pk]
+  token varchar(16) [unique, not null, note: 'chuỗi ngẫu nhiên trên link tải, vd /d/Ab3xK9pQ — không dùng id để tránh bị dò link']
+  app_id uuid [null, note: 'null khi source = quick_share']
+  source build_source [not null, default: 'app']
+  status build_status [not null, default: 'ready']
+  platform platform [not null, note: 'suy ra từ NỘI DUNG file (có Payload/*.app hay AndroidManifest.xml), không từ đuôi file']
+
+  app_name varchar [not null, note: 'ảnh chụp từ file lúc upload. iOS: CFBundleDisplayName → CFBundleName. Android: android:label']
+  bundle_id varchar [not null, note: 'iOS: CFBundleIdentifier. Android: package — phải khớp bundle id của App']
+  version varchar [not null, note: 'iOS: CFBundleShortVersionString. Android: versionName']
+  build_number varchar [not null, note: 'iOS: CFBundleVersion. Android: versionCode']
+  min_os_version varchar [null, note: 'iOS: MinimumOSVersion (vd 15.0). Android: minSdkVersion (vd API 24)']
+  release_notes varchar [note: 'changelog người upload nhập, hiện trên trang tải']
+
+  file_key varchar [unique, not null, note: 'object key trên B2 — unique để 1 file không bị tạo 2 bản ghi']
+  file_size bigint [not null, note: 'byte']
+  icon_key varchar [null, note: 'icon trích từ file, đã chuyển về PNG chuẩn — null nếu trích lỗi']
+  metadata jsonb [not null, default: '{}', note: '''thông tin phụ, vd iOS: team_name, distribution (in-house/ad-hoc...), profile_expires_at,
+    device_family. Android: target_sdk''']
+
+  download_count int [not null, default: 0, note: 'tăng khi file thực sự được tải; chi tiết từng lượt ở bảng downloads']
+  expires_at timestamptz [null, note: 'hạn của LINK — null = không hết hạn']
+
+  uploaded_by uuid [null, note: 'null = quick share ẩn danh (không đăng nhập); build của App luôn có']
+  updated_at timestamptz
+  created_at timestamptz [not null, default: `now()`]
+
+  Note: '''
+    check: (source = app) = (app_id is not null)
+    check: source = quick_share OR uploaded_by is not null
+  '''
+
+  Indexes {
+    (uploaded_by, created_at)
+    (bundle_id, created_at)
+    (app_id, created_at)
+    (source, expires_at)
+  }
+}
+
+Ref: builds.uploaded_by > U.id [delete: restrict]
+Ref: builds.app_id > apps.id [delete: restrict]
+
+Table build_tester_groups {
+  build_id bigint [not null]
+  tester_group_id uuid [not null]
+  created_at timestamptz [not null, default: `now()`]
+
+  Indexes {
+    (build_id, tester_group_id) [pk]
+    tester_group_id
+  }
+}
+
+Ref: build_tester_groups.build_id > builds.id [delete: cascade]
+Ref: build_tester_groups.tester_group_id > tester_groups.id [delete: cascade]
+
+Table approval_requests {
+  id uuid [pk, default: `gen_random_uuid()`]
+  build_id bigint [unique, not null]
+  requested_by uuid [not null]
+  requested_at timestamptz [not null, default: `now()`]
+  decision approval_decision [null, note: 'null = đang chờ duyệt']
+  note varchar [null]
+  reviewed_by uuid [null]
+  reviewed_at timestamptz [null]
+
+  Indexes {
+    (decision, requested_at)
+  }
+}
+
+Ref: approval_requests.build_id > builds.id [delete: cascade]
+Ref: approval_requests.requested_by > U.id [delete: restrict]
+Ref: approval_requests.reviewed_by > U.id [delete: set null]
+
+Table downloads {
+  id bigserial [pk]
+  build_id bigint [not null]
+  client_ip varchar
+  user_agent varchar [note: 'đọc ra model máy / phiên bản OS để thống kê']
+  created_at timestamptz [not null, default: `now()`]
+
+  Note: '''
+    Một dòng = một lần tải file IPA/APK thật (iOS gọi URL trong manifest.plist = máy đang cài).
+    Mở trang tải hoặc tải manifest.plist KHÔNG tính.
+  '''
+
+  Indexes {
+    (build_id, created_at)
+    created_at
+  }
+}
+
+Ref: downloads.build_id > builds.id [delete: cascade]
