@@ -1,4 +1,4 @@
-DB_URL ?= postgresql://root:Hoanglong2502@localhost:5432/appdist?sslmode=disable
+DB_URL ?= postgresql://root:secret@localhost:5432/appdist?sslmode=disable
 
 postgres:
 	docker run --name appdist-postgres -p 5432:5432 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=secret -d postgres:17-alpine
@@ -51,6 +51,10 @@ server:
 create_admin:
 	go run ./cmd/createadmin -email "$(email)" -name "$(name)" -password "$(password)"
 
+# Tài khoản demo cho DB mới (bỏ qua nếu DB đã có user): make seed
+seed:
+	SEED_DEMO_DATA=true go run ./cmd/seed
+
 # Image cho server x86: make docker_build version=1.0.0
 # Không có registry thì đẩy qua SSH: make docker_push_ssh version=1.0.0 host=user@server
 version ?= latest
@@ -60,4 +64,4 @@ docker_build:
 docker_push_ssh:
 	docker save appdist-be:$(version) | gzip | ssh $(host) 'gunzip | docker load'
 
-.PHONY: postgres createdb dropdb migrateup migrateup1 migratedown migratedown1 new_migration db_docs db_schema sqlc swagger test server create_admin docker_build docker_push_ssh
+.PHONY: postgres createdb dropdb migrateup migrateup1 migratedown migratedown1 new_migration db_docs db_schema sqlc swagger test server create_admin seed docker_build docker_push_ssh

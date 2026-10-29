@@ -2,7 +2,8 @@
 #   TAG=1.0.0 docker compose up -d
 # Chạy thử trên máy dev với file env và cổng khác:
 #   ENV_FILE=local.env API_PORT=8081 docker compose -p appdist-local up -d
-# Mỗi lần up: postgres sẵn sàng → migrate chạy migration mới → api khởi động.
+# Mỗi lần up: postgres sẵn sàng → migrate chạy migration mới → seed (chỉ khi
+# SEED_DEMO_DATA=true và DB chưa có user) → api khởi động.
 
 services:
   postgres:
@@ -29,6 +30,15 @@ services:
         condition: service_healthy
     restart: "no"
 
+  seed:
+    image: appdist-be:${TAG:-latest}
+    env_file: ${ENV_FILE:-prod.env}
+    entrypoint: ["/app/seed"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: "no"
+
   api:
     image: appdist-be:${TAG:-latest}
     restart: unless-stopped
@@ -39,7 +49,7 @@ services:
     # Server chờ request đang chạy (upload lớn) tối đa 30 giây khi tắt.
     stop_grace_period: 40s
     depends_on:
-      migrate:
+      seed:
         condition: service_completed_successfully
     logging:
       driver: json-file

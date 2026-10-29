@@ -8,6 +8,10 @@ Nơi lưu file cài đặt (IPA/APK) và tạo link tải cho khách — thay th
 
 Stack: Go, gin, PostgreSQL (pgx + sqlc), golang-migrate, PASETO, minio-go (B2).
 
+## Deploy production
+
+Xem [DEPLOY.md](DEPLOY.md).
+
 ## Chạy local
 
 ```bash

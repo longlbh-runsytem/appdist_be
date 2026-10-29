@@ -10,7 +10,8 @@ RUN go mod download
 
 COPY . .
 RUN CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /out/server . \
- && CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /out/createadmin ./cmd/createadmin
+ && CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /out/createadmin ./cmd/createadmin \
+ && CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /out/seed ./cmd/seed
 
 FROM alpine:3.22
 # ca-certificates: gọi HTTPS tới Backblaze B2. tzdata: giờ Asia/Ho_Chi_Minh cho thống kê.
